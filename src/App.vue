@@ -1,36 +1,19 @@
 <template>
   <v-app>
-    <!-- <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>-->
-
-    <v-content class="my-3">
-      <v-container>
+    <v-content class="my-3" stlye="position: relative">
+      <v-container style="position: relative">
+        <v-btn
+          @click="exportPDF"
+          title="Exportar para PDF"
+          fixed
+          dark
+          fab
+          top
+          right
+          color="primary"
+        >
+          <v-icon>mdi-file-export</v-icon>
+        </v-btn>
         <v-form>
           <v-container>
             <v-row class="d-flex align-end">
@@ -77,14 +60,32 @@
                     />
                   </v-col>
                   <v-col md="4">
-                    <v-text-field
-                      id="characterClass"
-                      v-model="form.character.class"
-                      label="Classe e Nível"
-                      hide-details="auto"
-                      :dense="dense"
-                      :outlined="outlined"
-                    />
+                    <v-row dense>
+                      <v-col class="pt-0" md="8">
+                        <v-text-field
+                          id="characterClass"
+                          v-model="form.character.class"
+                          label="Classe"
+                          hide-details="auto"
+                          :dense="dense"
+                          :outlined="outlined"
+                        />
+                      </v-col>
+                      <v-col class="pt-0" md="4">
+                        <v-text-field
+                          type="number"
+                          id="characterClass"
+                          v-model="form.character.class"
+                          label="Nível"
+                          hide-details="auto"
+                          :dense="dense"
+                          :outlined="outlined"
+                        />
+                      </v-col>
+                      <v-col class="pb-0" md="12">
+                        <v-btn block color="primary">Nova Classe</v-btn>
+                      </v-col>
+                    </v-row>
                   </v-col>
                 </v-row>
               </v-col>
@@ -320,47 +321,23 @@
                 </v-row>
               </v-container>
               <v-divider />
-              <v-container id="skills" style="font-size: 12px">
-                <v-row dense v-for="(index) in 10" :key="index">
-                  <v-col md="12">
-                    Acrobacia - Total:
-                    <b>10</b>
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      id="half_level"
-                      label="1/2 do Nível"
+              <v-container id="skills">
+                <v-col lg="12">
+                  <label>Selecione as perícias treinadas</label>
+                </v-col>
+                <v-row dense>
+                  <v-col v-for="(e, index) in pericias" :key="index" md="3">
+                    <v-checkbox
+                      class="ma-0"
                       hide-details="auto"
+                      v-model="e._selected"
+                      style="font-size: 12px !important"
                       :dense="dense"
-                      :outlined="outlined"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      id="mod_atb"
-                      label="Mod. Atributo"
-                      hide-details="auto"
-                      :dense="dense"
-                      :outlined="outlined"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      id="training"
-                      label="Treino"
-                      hide-details="auto"
-                      :dense="dense"
-                      :outlined="outlined"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      id="others"
-                      label="Outros"
-                      hide-details="auto"
-                      :dense="dense"
-                      :outlined="outlined"
-                    />
+                    >
+                      <template v-slot:label>
+                        <span style="font-size: 11px; text-transform: capitalize">{{e.name}}</span>
+                      </template>
+                    </v-checkbox>
                   </v-col>
                 </v-row>
               </v-container>
@@ -417,14 +394,16 @@
 </template>
 
 <script>
+import jsPDF from "jspdf";
+import jsonPericias from "./assets/pericias.json";
+import jsonAtbs from "./assets/atributtes.json";
+
 export default {
   name: "app",
   data() {
-    const defaultValue = 10;
     return {
       outlined: true,
       dense: true,
-      defaultValue: 10,
       max: 18,
       min: 8,
       form: {
@@ -450,41 +429,22 @@ export default {
         },
         player: ""
       },
-      atbs: [
-        {
-          name: "Força",
-          short: "for",
-          value: defaultValue
-        },
-        {
-          name: "Destreza",
-          short: "des",
-          value: defaultValue
-        },
-        {
-          name: "Constituição",
-          short: "con",
-          value: defaultValue
-        },
-        {
-          name: "Inteligência",
-          short: "int",
-          value: defaultValue
-        },
-        {
-          name: "Sabedoria",
-          short: "sab",
-          value: defaultValue
-        },
-        {
-          name: "Carisma",
-          short: "car",
-          value: defaultValue
-        }
-      ]
+      atbs: jsonAtbs,
+      pericias: jsonPericias
     };
   },
   methods: {
+    exportPDF() {
+      const img = new Image();
+      const src = "/char.jpg";
+      img.src = src;
+      const doc = new jsPDF();
+      const pdfName = this.form.character.name || "character-sheet";
+      const width = doc.internal.pageSize.getWidth().toFixed();
+      const height = doc.internal.pageSize.getHeight().toFixed();
+      doc.addImage(img, "JPEG", 0, 0, width, height);
+      doc.save(pdfName + ".pdf");
+    },
     compute(atb) {
       switch (atb.value) {
         case 8:
