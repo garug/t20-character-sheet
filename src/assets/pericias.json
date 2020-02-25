@@ -132,6 +132,18 @@
         "property": "int"
     },
     {
+        "name": "oficio",
+        "penalty": false,
+        "trained": false,
+        "property": "int"
+    },
+    {
+        "name": "oficio",
+        "penalty": false,
+        "trained": false,
+        "property": "int"
+    },
+    {
         "name": "percepção",
         "penalty": false,
         "trained": false,
