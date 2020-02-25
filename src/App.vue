@@ -620,8 +620,8 @@ export default {
       // Money
       doc.setFontSize(10);
       const moneyLine = 272;
-      doc.text(142, moneyLine, character.money.tibar);
-      doc.text(172, moneyLine, character.money.gold);
+      doc.text(142, moneyLine, character.money.tibar.toString());
+      doc.text(172, moneyLine, character.money.gold.toString());
       // Salva
       doc.save(pdfName + ".pdf");
     },
