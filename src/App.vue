@@ -282,6 +282,7 @@
                   <v-col lg="12">
                     <v-btn
                       @click="newTalent"
+                      :disabled="form.character.talents.length === 24"
                       block
                       color="primary"
                     >Nova Habilidade, Talento ou Magia</v-btn>
@@ -293,10 +294,10 @@
               <v-container id="armorClass">
                 <label>Classe de Armadura</label>
                 <v-row align="center" dense>
-                  <v-col md=2 class="flex-grow-0">
+                  <v-col md="2" class="flex-grow-0">
                     <p class="text-right display-2 ma-0">{{totalArmorClass}}</p>
                   </v-col>
-                  <v-col md=2 class="flex-grow-0">
+                  <v-col md="2" class="flex-grow-0">
                     <p class="title ma-0 text-no-wrap">= 10 +</p>
                   </v-col>
                   <v-col cols="11" md="7">
@@ -311,10 +312,10 @@
                       class="mx-1"
                     />
                   </v-col>
-                  <v-col md=1 class="flex-grow-0">
+                  <v-col md="1" class="flex-grow-0">
                     <p class="title text-center ma-0">+</p>
                   </v-col>
-                  <v-col cols="11" md=5>
+                  <v-col cols="11" md="5">
                     <v-text-field
                       id="ac_armor"
                       label="Armadura"
@@ -326,10 +327,10 @@
                       class="mx-1"
                     />
                   </v-col>
-                  <v-col md=1 class="flex-grow-0">
+                  <v-col md="1" class="flex-grow-0">
                     <p class="title text-center ma-0">+</p>
                   </v-col>
-                  <v-col cols="11" md=5>
+                  <v-col cols="11" md="5">
                     <v-text-field
                       id="ac_shield"
                       label="Escudo"
@@ -341,10 +342,10 @@
                       class="mx-1"
                     />
                   </v-col>
-                  <v-col md=1 class="flex-grow-0">
+                  <v-col md="1" class="flex-grow-0">
                     <p class="title text-center ma-0">+</p>
                   </v-col>
-                  <v-col cols="11" md=11>
+                  <v-col cols="11" md="11">
                     <v-text-field
                       id="ac_others"
                       label="Outros"
@@ -402,7 +403,12 @@
                     />
                   </v-col>
                   <v-col cols="12">
-                    <v-btn @click="newEquip" block color="primary">Novo Equipamento</v-btn>
+                    <v-btn
+                      :disabled="form.character.equips.length === 8"
+                      @click="newEquip"
+                      block
+                      color="primary"
+                    >Novo Equipamento</v-btn>
                   </v-col>
                   <v-col cols="12">
                     <v-divider />
@@ -448,14 +454,36 @@
         <v-btn @click="exportPDF()" fab dark small color="green">
           <v-icon>mdi-file-download</v-icon>
         </v-btn>
-        <!-- <v-btn fab dark small color="indigo">
+        <v-btn
+          link
+          :href="jsonLink"
+          :download="(form.character.name || 'character-sheet') + '.json'"
+          fab
+          dark
+          small
+          color="blue"
+        >
+          <v-icon>mdi-file-export</v-icon>
+        </v-btn>
+        <v-btn @click.stop="importFile = true" fab dark small color="indigo">
           <v-icon>mdi-file-import</v-icon>
         </v-btn>
-        <v-btn fab dark small color="red">
-          <v-icon>mdi-file-download</v-icon>
-        </v-btn>-->
       </v-speed-dial>
     </v-content>
+    <v-dialog max-width="500" v-model="importFile">
+      <v-card>
+        <v-card-title class="headline">Importe uma ficha salva</v-card-title>
+        <v-card-text>
+          A ficha deve estar em formato específico, use somente que tenham sido exportados pela aplicação.
+          <v-file-input ref="localImport" @change="importJSON" label="Arquivo de ficha"></v-file-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="importFile = false">Cancelar</v-btn>
+          <v-btn color="primary" text @click="doneImport" :disabled="!importedFile">Importar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -472,6 +500,8 @@ export default {
       dense: true,
       max: 18,
       min: 8,
+      importFile: false,
+      importedFile: null,
       form: {
         character: {
           name: "",
@@ -643,6 +673,33 @@ export default {
       // Salva
       doc.save(pdfName + ".pdf");
     },
+    importJSON(originalFile) {
+      const reader = new FileReader();
+      const vm = this;
+      reader.onload = textFile => {
+        const json = JSON.parse(textFile.target.result);
+        if ("character" in json && "player" in json && "skills" in json) {
+          vm.$refs.localImport.errorMessages.splice(0, vm.$refs.localImport.errorMessages.length);
+          this.importedFile = json;
+        } else {
+          vm.$refs.localImport.errorMessages.push("Arquivo Inválido");
+          this.importedFile = null;
+        }
+      };
+      if (originalFile) {
+        reader.readAsText(originalFile);
+      } else {
+        vm.$refs.localImport.errorMessages.splice(0, vm.$refs.localImport.errorMessages.length);
+        this.importedFile = null;
+      }
+    },
+    doneImport() {
+      this.form.character = this.importedFile.character;
+      this.form.player = this.importedFile.player;
+      this.importedFile.skills.forEach(e => this.pericias.find(p => p.name === e)._selected = true);
+      this.importedFile.attributes.forEach((e, index) => this.atbs[index].value = e);
+      this.importFile = false;
+    },
     bonusPericia() {
       if (this.totalLevel >= 15) {
         return 6;
@@ -704,9 +761,6 @@ export default {
       this.form.character.talents.push(
         {
           name: ""
-        },
-        {
-          name: ""
         }
       );
     },
@@ -753,6 +807,21 @@ export default {
         parseInt(armorClass.shield) +
         parseInt(armorClass.others)
       );
+    },
+    jsonLink() {
+      const contentType = "application/json";
+      const json = {
+        player: this.form.player,
+        character: this.form.character,
+        skills: this.selectedSkills,
+        attributes: this.atbs.map(e => e.value)
+      };
+      const dData = JSON.stringify(json);
+      const blob = new Blob([dData], { type: contentType });
+      return window.URL.createObjectURL(blob);
+    },
+    selectedSkills() {
+      return this.pericias.filter(e => e._selected).map(e => e.name);
     }
   }
 };
