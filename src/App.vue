@@ -1,13 +1,13 @@
 <template>
   <v-app>
-    <v-content class="my-3" stlye="position: relative">
+    <v-content class="my-0 my-lg-3" stlye="position: relative">
       <v-container style="position: relative">
         <v-form>
           <v-container>
-            <v-row class="d-flex align-end">
-              <v-col md="7">
+            <v-row class="d-flex flex-wrap align-end">
+              <v-col cols="12" md="7">
                 <v-row dense>
-                  <v-col md="6">
+                  <v-col cols="12" md="6">
                     <v-text-field
                       id="characterName"
                       v-model="form.character.name"
@@ -17,7 +17,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col md="6">
+                  <v-col cols="12" md="6">
                     <v-text-field
                       id="playerName"
                       v-model="form.player"
@@ -27,7 +27,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col md="3">
+                  <v-col cols="12" md="3">
                     <v-text-field
                       id="characterRace"
                       v-model="form.character.race"
@@ -38,7 +38,7 @@
                       class="mt-1"
                     />
                   </v-col>
-                  <v-col md="3">
+                  <v-col cols="12" md="3">
                     <v-text-field
                       id="characterOrigin"
                       v-model="form.character.origin"
@@ -49,50 +49,50 @@
                       class="mt-1"
                     />
                   </v-col>
-                  <v-col md="6">
-                    <v-row dense>
-                      <template v-for="(element, index) in form.character.class">
-                        <v-col md="6" :key="'class_' + index">
-                          <v-text-field
-                            :id="'characterClass_' + element.name"
-                            v-model="element.name"
-                            label="Classe"
-                            hide-details="auto"
-                            :dense="dense"
-                            :outlined="outlined"
-                          />
-                        </v-col>
-                        <v-col md="4" :key="'class_level_' + index">
-                          <v-text-field
-                            type="number"
-                            :id="'characterLevel_' + element.name"
-                            v-model="element.level"
-                            label="Nível"
-                            hide-details="auto"
-                            :dense="dense"
-                            :outlined="outlined"
-                          />
-                        </v-col>
-                        <v-col md="2" :key="'remove_' + index">
-                          <v-btn
-                            @click="removeClass(element)"
-                            text
-                            block
-                            :disabled="form.character.class.length === 1"
-                            color="error"
-                          >
-                            <v-icon>mdi-delete</v-icon>
-                          </v-btn>
-                        </v-col>
-                      </template>
-                      <v-col class="pb-0" md="12">
-                        <v-btn @click="newClass" block color="primary">Nova Classe</v-btn>
+                  <v-col cols="12" md="6">
+                    <v-row
+                      dense
+                      v-for="(element, index) in form.character.class"
+                      :key="'class_container_' + index"
+                    >
+                      <v-col cols="6" :key="'class_' + index">
+                        <v-text-field
+                          :id="'characterClass_' + element.name"
+                          v-model="element.name"
+                          label="Classe"
+                          hide-details="auto"
+                          :dense="dense"
+                          :outlined="outlined"
+                        />
+                      </v-col>
+                      <v-col cols="3" :key="'class_level_' + index">
+                        <v-text-field
+                          type="number"
+                          :id="'characterLevel_' + element.name"
+                          v-model="element.level"
+                          label="Nível"
+                          hide-details="auto"
+                          :dense="dense"
+                          :outlined="outlined"
+                        />
+                      </v-col>
+                      <v-col cols="3" :key="'remove_' + index">
+                        <v-btn
+                          @click="removeClass(element)"
+                          text
+                          block
+                          :disabled="form.character.class.length === 1"
+                          color="error"
+                        >
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
                       </v-col>
                     </v-row>
+                    <v-btn @click="newClass" block color="primary">Nova Classe</v-btn>
                   </v-col>
                 </v-row>
               </v-col>
-              <v-col>
+              <v-col class="order-first order-lg-last order-xl-last">
                 <v-img src="./imgs/logo.png" aspect-ratio="4.355704697986577" />
               </v-col>
             </v-row>
@@ -101,9 +101,9 @@
             <v-col md="7">
               <v-container>
                 <v-row>
-                  <v-col id="characterAtbs">
+                  <v-col cols="12" md="6" id="characterAtbs">
                     <v-row v-for="(atb, index) in atbs" :key="index">
-                      <v-col class="py-0" lg="12">
+                      <v-col class="py-0" cols="12">
                         <label class="ma-0">{{atb.name}}</label>
                       </v-col>
                       <v-col class="d-flex py-0 justify-center align-center" lg="12">
@@ -115,14 +115,14 @@
                           <span class="primary--text">{{modifiers[atb.short]}}</span>
                         </p>
                       </v-col>
-                      <v-col v-if="index != atbs.length - 1" sm="12 pb-3 pt-0">
+                      <v-col v-if="index != atbs.length - 1" cols="12 pb-3 pt-0">
                         <v-divider />
                       </v-col>
                     </v-row>
                   </v-col>
-                  <v-col>
+                  <v-col cols="12" md="6" id="specs">
                     <label>Pontos de Vida</label>
-                    <v-row>
+                    <v-row dense>
                       <v-col class="col form-group">
                         <v-text-field
                           id="hpMax"
@@ -147,7 +147,7 @@
                       </v-col>
                     </v-row>
                     <label>Pontos de Mana</label>
-                    <v-row>
+                    <v-row dense>
                       <v-col class="col form-group">
                         <v-text-field
                           id="mpMax"
@@ -193,11 +193,10 @@
                 <v-row
                   v-for="(move, index) in form.character.moves"
                   :key="'col_move_' + index"
-                  dense
                   :id="'characterMove_' + index"
-                  class="form-row align-items-center"
+                  dense
                 >
-                  <v-col>
+                  <v-col cols="12" md="auto">
                     <v-text-field
                       id="atackName"
                       label="Nome"
@@ -207,7 +206,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col class="col text-center">
+                  <v-col cols="6" md="auto">
                     <v-text-field
                       id="atackBonus"
                       label="Bônus de Ataque"
@@ -217,7 +216,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col class="col text-center">
+                  <v-col cols="6" md="auto">
                     <v-text-field
                       id="damage"
                       label="Dano"
@@ -227,7 +226,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col class="col text-center">
+                  <v-col cols="6" md="auto">
                     <v-text-field
                       id="critical"
                       label="Crítico"
@@ -237,7 +236,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col class="col text-center">
+                  <v-col cols="6" md="auto">
                     <v-text-field
                       id="type"
                       label="Tipo"
@@ -247,7 +246,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col class="col text-center">
+                  <v-col cols="6" md="auto">
                     <v-text-field
                       id="range"
                       label="Alcance"
@@ -257,6 +256,7 @@
                       :outlined="outlined"
                     />
                   </v-col>
+                  <v-col cols="12"></v-col>
                 </v-row>
                 <v-btn
                   :disabled="form.character.moves.length === 4"
@@ -269,7 +269,7 @@
               <v-container id="habilities-spells">
                 <label for>Habilidades, Talentos e Magias</label>
                 <v-row dense>
-                  <v-col lg="6" :key="index" v-for="(e, index) in form.character.talents">
+                  <v-col cols="12" md="6" :key="index" v-for="(e, index) in form.character.talents">
                     <v-text-field
                       :id="'talent_' + index"
                       v-model="e.name"
@@ -292,53 +292,71 @@
             <v-col md="5">
               <v-container id="armorClass">
                 <label>Classe de Armadura</label>
-                <div class="d-flex align-center">
-                  <p class="display-2 ma-0">{{totalArmorClass}}</p>
-                  <p class="title ma-0 text-no-wrap">= 10 +</p>
-                  <v-text-field
-                    id="ac_mod"
-                    disabled
-                    :value="modifiers.des"
-                    label="Mod. Destreza"
-                    hide-details="auto"
-                    :dense="dense"
-                    :outlined="outlined"
-                    class="mx-1"
-                  />
-                  <p class="title ma-0">+</p>
-                  <v-text-field
-                    id="ac_armor"
-                    label="Armadura"
-                    type="number"
-                    v-model="form.character.armorClass.armor"
-                    hide-details="auto"
-                    :dense="dense"
-                    :outlined="outlined"
-                    class="mx-1"
-                  />
-                  <p class="title ma-0">+</p>
-                  <v-text-field
-                    id="ac_shield"
-                    label="Escudo"
-                    type="number"
-                    v-model="form.character.armorClass.shield"
-                    hide-details="auto"
-                    :dense="dense"
-                    :outlined="outlined"
-                    class="mx-1"
-                  />
-                  <p class="title ma-0">+</p>
-                  <v-text-field
-                    id="ac_others"
-                    label="Outros"
-                    type="number"
-                    v-model="form.character.armorClass.others"
-                    hide-details="auto"
-                    :dense="dense"
-                    :outlined="outlined"
-                    class="ml-1"
-                  />
-                </div>
+                <v-row align="center" dense>
+                  <v-col md=2 class="flex-grow-0">
+                    <p class="text-right display-2 ma-0">{{totalArmorClass}}</p>
+                  </v-col>
+                  <v-col md=2 class="flex-grow-0">
+                    <p class="title ma-0 text-no-wrap">= 10 +</p>
+                  </v-col>
+                  <v-col cols="11" md="7">
+                    <v-text-field
+                      id="ac_mod"
+                      disabled
+                      :value="modifiers.des"
+                      label="Mod. Destreza"
+                      hide-details="auto"
+                      :dense="dense"
+                      :outlined="outlined"
+                      class="mx-1"
+                    />
+                  </v-col>
+                  <v-col md=1 class="flex-grow-0">
+                    <p class="title text-center ma-0">+</p>
+                  </v-col>
+                  <v-col cols="11" md=5>
+                    <v-text-field
+                      id="ac_armor"
+                      label="Armadura"
+                      type="number"
+                      v-model="form.character.armorClass.armor"
+                      hide-details="auto"
+                      :dense="dense"
+                      :outlined="outlined"
+                      class="mx-1"
+                    />
+                  </v-col>
+                  <v-col md=1 class="flex-grow-0">
+                    <p class="title text-center ma-0">+</p>
+                  </v-col>
+                  <v-col cols="11" md=5>
+                    <v-text-field
+                      id="ac_shield"
+                      label="Escudo"
+                      type="number"
+                      v-model="form.character.armorClass.shield"
+                      hide-details="auto"
+                      :dense="dense"
+                      :outlined="outlined"
+                      class="mx-1"
+                    />
+                  </v-col>
+                  <v-col md=1 class="flex-grow-0">
+                    <p class="title text-center ma-0">+</p>
+                  </v-col>
+                  <v-col cols="11" md=11>
+                    <v-text-field
+                      id="ac_others"
+                      label="Outros"
+                      type="number"
+                      v-model="form.character.armorClass.others"
+                      hide-details="auto"
+                      :dense="dense"
+                      :outlined="outlined"
+                      class="ml-1"
+                    />
+                  </v-col>
+                </v-row>
               </v-container>
               <v-divider />
               <v-container id="skills">
@@ -350,7 +368,7 @@
                 </v-col>
                 <v-row dense>
                   <template v-for="(e, index) in pericias">
-                    <v-col v-if="e.name !== 'oficio'" :key="index" md="3">
+                    <v-col cols="4" md="3" v-if="e.name !== 'oficio'" :key="index">
                       <v-checkbox
                         class="ma-0"
                         hide-details="auto"
@@ -371,7 +389,7 @@
                 <v-row dense>
                   <v-col
                     v-for="(e, index) in form.character.equips"
-                    md="12"
+                    cols="12"
                     :key="'equip_' + index"
                   >
                     <v-text-field
@@ -383,10 +401,10 @@
                       :outlined="outlined"
                     />
                   </v-col>
-                  <v-col lg="12">
+                  <v-col cols="12">
                     <v-btn @click="newEquip" block color="primary">Novo Equipamento</v-btn>
                   </v-col>
-                  <v-col sm="12">
+                  <v-col cols="12">
                     <v-divider />
                   </v-col>
                   <v-col>
@@ -435,7 +453,7 @@
         </v-btn>
         <v-btn fab dark small color="red">
           <v-icon>mdi-file-download</v-icon>
-        </v-btn> -->
+        </v-btn>-->
       </v-speed-dial>
     </v-content>
   </v-app>
@@ -702,9 +720,9 @@ export default {
       atb.value++;
     },
     decrement(atb) {
-      if (atb.value > 8) {
-        atb.value--;
-      }
+      atb.value--;
+      // if (atb.value > 8) {
+      // }
     }
   },
   computed: {
