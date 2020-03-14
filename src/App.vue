@@ -465,25 +465,12 @@
         >
           <v-icon>mdi-file-export</v-icon>
         </v-btn>
-        <v-btn @click.stop="importFile = true" fab dark small color="indigo">
+        <v-btn @click.stop="openImport" fab dark small color="indigo">
           <v-icon>mdi-file-import</v-icon>
         </v-btn>
       </v-speed-dial>
     </v-content>
-    <v-dialog max-width="500" v-model="importFile">
-      <v-card>
-        <v-card-title class="headline">Importe uma ficha salva</v-card-title>
-        <v-card-text>
-          A ficha deve estar em formato específico, use somente que tenham sido exportados pela aplicação.
-          <v-file-input ref="localImport" @change="importJSON" label="Arquivo de ficha"></v-file-input>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="importFile = false">Cancelar</v-btn>
-          <v-btn color="primary" text @click="doneImport" :disabled="!importedFile">Importar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ImportFile ref="importDialog" @result="handleImportFile" />
   </v-app>
 </template>
 
@@ -491,6 +478,7 @@
 import jsPDF from "jspdf";
 import jsonPericias from "./assets/pericias.json";
 import jsonAtbs from "./assets/atributtes.json";
+import ImportFile from "./components/dialogs/ImportFile";
 
 export default {
   name: "app",
@@ -500,7 +488,6 @@ export default {
       dense: true,
       max: 18,
       min: 8,
-      importFile: false,
       importedFile: null,
       form: {
         character: {
@@ -557,6 +544,9 @@ export default {
       atbs: jsonAtbs,
       pericias: jsonPericias
     };
+  },
+  components: {
+    ImportFile
   },
   methods: {
     exportPDF() {
@@ -673,32 +663,18 @@ export default {
       // Salva
       doc.save(pdfName + ".pdf");
     },
-    importJSON(originalFile) {
-      const reader = new FileReader();
-      const vm = this;
-      reader.onload = textFile => {
-        const json = JSON.parse(textFile.target.result);
-        if ("character" in json && "player" in json && "skills" in json) {
-          vm.$refs.localImport.errorMessages.splice(0, vm.$refs.localImport.errorMessages.length);
-          this.importedFile = json;
-        } else {
-          vm.$refs.localImport.errorMessages.push("Arquivo Inválido");
-          this.importedFile = null;
-        }
-      };
-      if (originalFile) {
-        reader.readAsText(originalFile);
-      } else {
-        vm.$refs.localImport.errorMessages.splice(0, vm.$refs.localImport.errorMessages.length);
-        this.importedFile = null;
-      }
+    openImport() {
+      this.$refs.importDialog.open();
     },
-    doneImport() {
-      this.form.character = this.importedFile.character;
-      this.form.player = this.importedFile.player;
-      this.importedFile.skills.forEach(e => this.pericias.find(p => p.name === e)._selected = true);
-      this.importedFile.attributes.forEach((e, index) => this.atbs[index].value = e);
-      this.importFile = false;
+    handleImportFile(value) {
+      if (value) {
+        this.form.character = value.character;
+        this.form.player = value.player;
+        value.skills.forEach(
+          e => (this.pericias.find(p => p.name === e)._selected = true)
+        );
+        value.attributes.forEach((e, index) => (this.atbs[index].value = e));
+      }
     },
     bonusPericia() {
       if (this.totalLevel >= 15) {
@@ -758,11 +734,9 @@ export default {
       });
     },
     newTalent() {
-      this.form.character.talents.push(
-        {
-          name: ""
-        }
-      );
+      this.form.character.talents.push({
+        name: ""
+      });
     },
     increment(atb) {
       // if (atb.value < 18 && this.remaining > 0) {
@@ -800,13 +774,11 @@ export default {
     },
     totalArmorClass() {
       const armorClass = this.form.character.armorClass;
-      return (
-        10 +
-        this.modifiers.des +
+      const totalInvested =
         parseInt(armorClass.armor) +
         parseInt(armorClass.shield) +
-        parseInt(armorClass.others)
-      );
+        parseInt(armorClass.others);
+      return 10 + this.modifiers.des + (totalInvested || 0);
     },
     jsonLink() {
       const contentType = "application/json";
